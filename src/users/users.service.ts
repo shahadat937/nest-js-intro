@@ -1,12 +1,26 @@
+import { forwardRef, Inject, Injectable } from "@nestjs/common";
+import { AuthService } from "src/auth/auth.service";
+
+@Injectable()
 export class UsersService {
-  users: {id:number,name:string,age:number,gender:string,isMarried:boolean}[] = [
-    {id: 1, name: "John", age: 30, gender: "male", isMarried: true},
-    {id: 2, name: "Jane", age: 25, gender: "female", isMarried: false},
-    {id: 3, name: "Doe", age: 40, gender: "non-binary", isMarried: true}
+  constructor(
+    @Inject(forwardRef(() => AuthService))   
+    private readonly authService:AuthService
+  ){
+
+  }
+  users: {id:number,name:string,email:string,gender:string,isMarried:boolean,password:String}[] = [
+    {id: 1, name: "John", email: "john@gmail.com", gender: "male", isMarried: true,password:'test123'},
+    {id: 2, name: "Jane", email: "john1@gmail.com", gender: "female", isMarried: false,password:'test123'},
+    {id: 3, name: "Doe", email: "john12@gmail.com", gender: "non-binary", isMarried: true,password:'test123'}
   ];
 
   getUsers() {
-    return this.users;
+    if(this.authService.isAuthenticated){
+   return this.users;
+    }
+     return "not login yet"
+ 
   }
   getUserByName(name: string) {
     return this.users.find(user => user.name === name);
@@ -14,7 +28,7 @@ export class UsersService {
   getUserById(id: number) {
     return this.users.find(user => user.id === id);
   }
-  createUser(user: {name: string, age: number, gender: string, isMarried: boolean}) {
+  createUser(user: {name: string, email: string, gender: string, isMarried: boolean,password:string}) {
     const newUser = {
       id: this.users.length + 1,
       ...user 
