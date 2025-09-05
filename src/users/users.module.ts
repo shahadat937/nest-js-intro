@@ -1,12 +1,13 @@
-import { forwardRef, Module } from '@nestjs/common';
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './user.entity';
 import { UsersController } from './users.controller';
 import { UsersService } from './users.service';
-import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
-  controllers: [UsersController],
+  imports: [TypeOrmModule.forFeature([User])], // 👈 MISSING in your code
   providers: [UsersService],
-  exports: [UsersService],
-  imports:[forwardRef(()=>AuthModule)]
+  controllers: [UsersController],
+  exports: [UsersService], // (optional, only if other modules need UsersService)
 })
 export class UsersModule {}
