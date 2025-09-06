@@ -32,5 +32,5 @@ export class Tweet {
   updatedAt: Date;
 
   @ManyToOne(() => User, (user) => user.tweets)
-  user: User;
+  user: User | null;
 }
