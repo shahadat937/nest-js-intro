@@ -5,9 +5,12 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Patch,
+  Delete
 } from '@nestjs/common';
 import { CreateTweetDto } from './dtos/create-tweet.dto';
 import { TweetService } from './tweet.service';
+import { UpdateTweetDTO } from './dtos/update-tweet.dto';
 @Controller('tweet')
 export class TweetController {
   constructor(private tweetService: TweetService) {}
@@ -21,4 +24,12 @@ export class TweetController {
   public CreateTweet(@Body() tweet: CreateTweetDto) {
     return this.tweetService.CreateTweet(tweet);
   }
+  @Patch()
+  public UpdateTweet(@Body() tweet: UpdateTweetDTO){
+        this.tweetService.updateTweet(tweet);
+    }
+    @Delete(':id')
+    public DeleteTweet(@Param('id', ParseIntPipe) id: number){
+        return this.tweetService.deleteTweet(id);
+    }
 }

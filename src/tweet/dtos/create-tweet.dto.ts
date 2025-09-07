@@ -21,5 +21,5 @@ export class CreateTweetDto {
   @IsOptional()
   @IsInt({ each: true })
   @IsArray()
-  hashtags?: number[];
+  hashtags?: number[] = [];
 }

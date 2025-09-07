@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { UsersService } from '../users/users.service';
 import { CreateTweetDto } from './dtos/create-tweet.dto';
 import { Tweet } from './tweet.entity';
+import { UpdateTweetDTO } from './dtos/update-tweet.dto';
 @Injectable()
 export class TweetService {
   constructor(
@@ -38,4 +39,24 @@ export class TweetService {
       relations: { user: true },
     });
   }
+   public async updateTweet(updateTweetDto: UpdateTweetDTO){
+         //Find all hashtags
+        let hashtags = await this.hashtagService.findHashtags(updateTweetDto.hashtags ?? []);
+          //Find the tweet by Id
+        let tweet = await this.tweetRepository.findOneBy({id: updateTweetDto.id});
+  //Update properties of the tweet
+      tweet!.text = updateTweetDto.text ?? tweet!.text;
+      tweet!.image = updateTweetDto.image ?? tweet!.image;
+      tweet!.hashtags = hashtags;
+        //Save the tweet
+        return await this.tweetRepository.save(tweet!);
+   }
+
+   public async deleteTweet(id: number){
+        await this.tweetRepository.delete({
+            id
+        })
+
+        return { deleted: true, id}
+    }
 }
