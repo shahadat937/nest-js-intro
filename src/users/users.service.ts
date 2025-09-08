@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, RequestTimeoutException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Profile } from '../profile/profile.entity';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { User } from './user.entity';
 import { ConfigService } from "@nestjs/config";
+import { UserAlreadyExistsException } from 'src/CustomExceptions/user-already-exists.exception';
 @Injectable()
 export class UsersService {
   constructor(
@@ -22,12 +23,44 @@ export class UsersService {
   }
 
   public async createUser(userDto: CreateUserDto) {
-    //Create a Profile & Save
-    userDto.profile = userDto.profile ?? {};
-    //Create User Object
-    let user = this.userRepository.create(userDto);
-    //Save the user object
-    return await this.userRepository.save(user);
+   try {
+            //Create a Profile & Save
+            userDto.profile = userDto.profile ?? {};
+
+            //CHeck if user with same username / email already exists
+            const existingUserWithUsername = await this.userRepository.findOne({
+                where: {username: userDto.username}
+            })
+
+            if(existingUserWithUsername){
+                throw new UserAlreadyExistsException('username', userDto.username);
+            }
+
+            const existingUserWithEmail = await this.userRepository.findOne({
+                where: {email: userDto.email}
+            })
+
+            if(existingUserWithEmail){
+                throw new UserAlreadyExistsException('email', userDto.email);
+            }
+
+            //Create User Object
+            let user = this.userRepository.create(userDto);
+
+            //Save the user object
+            return await this.userRepository.save(user);
+
+        } catch (error) {
+            if(error.code === 'ECONNREFUSED'){
+                throw new RequestTimeoutException('An error has occured. please try again later', {
+                    description: 'Could not connect to the database.'
+                })
+            }
+            // if(error.code === '23505'){
+            //     throw new BadRequestException('There is some dulicate value for the user in Database');
+            // }
+            throw error;
+        }
   }
   public async deleteUser(id: number) {
     //Delete user
@@ -36,7 +69,7 @@ export class UsersService {
     //Send a response
     return { deleted: true };
   }
-  public async FindUserById(id: number) {
+  public async FindUserById(id?: number) {
     return await this.userRepository.findOneBy({ id });
   }
 }
