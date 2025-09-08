@@ -11,6 +11,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import appConfig  from './config/app.config';
 const ENV = process.env.NODE_ENV;
 import databaseConfig from './config/database.config';
+import  envValidator  from './config/env.validation';
 @Module({
   imports: [
     TweetModule,
@@ -19,6 +20,7 @@ import databaseConfig from './config/database.config';
       isGlobal: true,
       envFilePath: !ENV ? '.env' : `.env.${ENV.trim()}`,
       load: [appConfig,databaseConfig],
+      validationSchema: envValidator
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -26,6 +28,7 @@ import databaseConfig from './config/database.config';
        useFactory: (configService: ConfigService) => ({
         type: 'postgres',
         autoLoadEntities: configService.get('database.autoLoadEntities'),
+        //autoLoadEntities:true,
         synchronize: configService.get('database.syncronize'),
         host: configService.get('database.host'),
         port: +configService.get('database.port'),

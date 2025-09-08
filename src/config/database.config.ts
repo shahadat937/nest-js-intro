@@ -7,5 +7,5 @@ export default registerAs('database', () => ({
     username: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
     syncronize: process.env.DB_SYNC === 'true' ? true : false,
-    autoLoadEntities: process.env.AUTO_LOAD === 'true' ? true : false
+    autoLoadEntities: process.env.DB_AUTO_LOAD === 'true' ? true : false
 }))
