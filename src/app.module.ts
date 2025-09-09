@@ -12,6 +12,7 @@ import appConfig  from './config/app.config';
 const ENV = process.env.NODE_ENV;
 import databaseConfig from './config/database.config';
 import  envValidator  from './config/env.validation';
+import { PaginationModule } from './common/pagination.module';
 @Module({
   imports: [
     TweetModule,
@@ -40,6 +41,7 @@ import  envValidator  from './config/env.validation';
     UsersModule,
     ProfileModule,
     HashtagModule,
+    PaginationModule
   ],
   controllers: [AppController],
   providers: [AppService],
