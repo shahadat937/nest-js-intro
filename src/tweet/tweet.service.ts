@@ -6,6 +6,9 @@ import { UsersService } from '../users/users.service';
 import { CreateTweetDto } from './dtos/create-tweet.dto';
 import { Tweet } from './tweet.entity';
 import { UpdateTweetDTO } from './dtos/update-tweet.dto';
+import { PaginationQueryDto } from 'src/common/pagination/dto/pagination-query.dto';
+import { PaginationProvider } from 'src/common/pagination.provider';
+import { Paginated } from 'src/common/paginater.interface';
 @Injectable()
 export class TweetService {
   constructor(
@@ -13,6 +16,7 @@ export class TweetService {
     private readonly hashtagService: HashtagService,
     @InjectRepository(Tweet)
     private readonly tweetRepository: Repository<Tweet>,
+     private readonly paginationProvider: PaginationProvider
   ) {}
 
   public async CreateTweet(createTweetDto: CreateTweetDto) {
@@ -33,17 +37,20 @@ export class TweetService {
     //Save the tweet
     return await this.tweetRepository.save(tweet);
   }
-  public async getTweets(userId?: number) {
-      const user = await this.userService.FindUserById(userId);
+     public async getTweets(userId: number, pageQueryDto: PaginationQueryDto): Promise<Paginated<Tweet>>{
+        //Find user with the given userid from user table
+        const user = await this.userService.FindUserById(userId);
 
         if(!user){
             throw new NotFoundException(`User with userId ${userId} is not found!`);
         }
-    return await this.tweetRepository.find({
-      where: { user: { id: userId } },
-      relations: { user: true },
-    });
-  }
+
+        return await this.paginationProvider.paginateQuery(
+            pageQueryDto,
+            this.tweetRepository,
+            { user: { id: userId}}
+        )
+    }
    public async updateTweet(updateTweetDto: UpdateTweetDTO){
          //Find all hashtags
         let hashtags = await this.hashtagService.findHashtags(updateTweetDto.hashtags ?? []);

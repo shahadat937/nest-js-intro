@@ -17,15 +17,14 @@ import { PaginationQueryDto } from 'src/common/pagination/dto/pagination-query.d
 export class TweetController {
   constructor(private tweetService: TweetService) {}
 
-  @Get(':userid')
-  public GetTweets
-  (
-    @Param('userid', ParseIntPipe) userid?: number,
-    @Query() paginationQueryDto?: PaginationQueryDto
-  ) {
-    console.log(paginationQueryDto);
-    return this.tweetService.getTweets(userid);
-  }
+     @Get(':userid')
+    public GetTweets(
+        @Param('userid', ParseIntPipe) userid: number,
+        @Query() paginationQueryDto: PaginationQueryDto
+    ){
+        console.log(paginationQueryDto);
+        return this.tweetService.getTweets(userid, paginationQueryDto);
+    }
 
   @Post()
   public CreateTweet(@Body() tweet: CreateTweetDto) {

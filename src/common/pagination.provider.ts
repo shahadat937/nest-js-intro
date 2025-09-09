@@ -15,7 +15,7 @@ public async paginateQuery<T extends ObjectLiteral>(
     repository: Repository<T>,
     where?: FindOptionsWhere<T>,
     relations? : string[]
-){
+): Promise<Paginated<T>>{
 const findOptions: FindManyOptions<T> = {
             skip: ((paginationQueryDto.page ?? 1) - 1) * (paginationQueryDto.limit ?? 10),
             take: paginationQueryDto.limit ?? 10
