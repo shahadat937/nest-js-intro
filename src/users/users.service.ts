@@ -6,6 +6,9 @@ import { CreateUserDto } from './dtos/create-user.dto';
 import { User } from './user.entity';
 import { ConfigService } from "@nestjs/config";
 import { UserAlreadyExistsException } from 'src/CustomExceptions/user-already-exists.exception';
+import { PaginationQueryDto } from 'src/common/pagination/dto/pagination-query.dto';
+import { Paginated } from 'src/common/paginater.interface';
+import { PaginationProvider } from 'src/common/pagination.provider';
 @Injectable()
 export class UsersService {
   constructor(
@@ -13,14 +16,28 @@ export class UsersService {
     private userRepository: Repository<User>,
     @InjectRepository(Profile)
     private profileRepository: Repository<Profile>,
-      private readonly configService: ConfigService
+      private readonly configService: ConfigService,
+       private readonly paginationProvider: PaginationProvider
   ) {}
 
-  getAllUsers() {
-      const environment = this.configService.get<string>('ENV_MODE');  
-        console.log(environment);
-    return this.userRepository.find();
-  }
+    public async getAllUsers(paginationQueryDto: PaginationQueryDto): Promise<Paginated<User>> {
+        try {
+            return await this.paginationProvider.paginateQuery(
+                paginationQueryDto,
+                this.userRepository,
+                undefined,
+                ['profile']
+            )
+        } catch (error) {
+            if(error.code === 'ECONNREFUSED'){
+                throw new RequestTimeoutException('An error has occured. please try again later', {
+                    description: 'Could not connect to the database.'
+                })
+            }
+            console.log(error);
+            throw error;
+        }
+    }
 
   public async createUser(userDto: CreateUserDto) {
    try {

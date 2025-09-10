@@ -6,23 +6,26 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
 } from '@nestjs/common';
 import { CreateUserDto } from './dtos/create-user.dto';
 import { UsersService } from './users.service';
+import { PaginationQueryDto } from 'src/common/pagination/dto/pagination-query.dto';
 
 @Controller('users')
 export class UsersController {
-  constructor(private userservice: UsersService) {}
-  @Get()
-  getUsers() {
-    return this.userservice.getAllUsers();
-  }
+  constructor(private usersService: UsersService) {}
+ @Get() 
+   getUsers(@Query() pageQueryDto: PaginationQueryDto)
+   {
+     return this.usersService.getAllUsers(pageQueryDto);
+   }
   @Post()
   createUser(@Body() user: CreateUserDto) {
-    return this.userservice.createUser(user);
+    return this.usersService.createUser(user);
   }
   @Delete(':id')
   public deleteUser(@Param('id', ParseIntPipe) id: number) {
-    this.userservice.deleteUser(id);
+    this.usersService.deleteUser(id);
   }
 }
